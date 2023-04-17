@@ -1,33 +1,70 @@
 #include "primer/trie.h"
 #include <string_view>
+#include <stack>
 #include "common/exception.h"
 
 namespace bustub {
-
+	
 template <class T>
 auto Trie::Get(std::string_view key) const -> const T * {
-  throw NotImplementedException("Trie::Get is not implemented.");
+	// throw NotImplementedException("Trie::Get is not implemented.");
 
-  // You should walk through the trie to find the node corresponding to the key. If the node doesn't exist, return
-  // nullptr. After you find the node, you should use `dynamic_cast` to cast it to `const TrieNodeWithValue<T> *`. If
-  // dynamic_cast returns `nullptr`, it means the type of the value is mismatched, and you should return nullptr.
-  // Otherwise, return the value.
+	// You should walk through the trie to find the node corresponding to the key. If the node doesn't exist, return
+	// nullptr. After you find the node, you should use `dynamic_cast` to cast it to `const TrieNodeWithValue<T> *`. If
+	// dynamic_cast returns `nullptr`, it means the type of the value is mismatched, and you should return nullptr.
+	// Otherwise, return the value.
+	
+	// 1. If the key is not in the trie, return nullptr.
+	// 2. If the key is in the trie but the type is mismatched, return nullptr.
+	// 3. Otherwise, return the value.
+	
+	auto node = root_;
+	for (auto ch : key) {
+		if (node == nullptr || node->children_.count(ch)) {
+			return nullptr;
+		}
+		node = node->children_.at(ch);
+	}
+	if (node->is_value_node_) {
+		auto value_node = dynamic_cast<const TrieNodeWithValue<T>*>(node.get());
+		if (value_node == nullptr) {
+			return nullptr;
+		}
+		return value_node->value_.get();
+	}
+	return nullptr;
 }
 
 template <class T>
 auto Trie::Put(std::string_view key, T value) const -> Trie {
-  // Note that `T` might be a non-copyable type. Always use `std::move` when creating `shared_ptr` on that value.
-  throw NotImplementedException("Trie::Put is not implemented.");
+	// Note that `T` might be a non-copyable type. Always use `std::move` when creating `shared_ptr` on that value.
 
-  // You should walk through the trie and create new nodes if necessary. If the node corresponding to the key already
-  // exists, you should create a new `TrieNodeWithValue`.
+	// You should walk through the trie and create new nodes if necessary. If the node corresponding to the key already
+	// exists, you should create a new `TrieNodeWithValue`.
+
+	// Returns the new trie.
+	auto node = root_;
+	std::stack<std::shared_ptr<TrieNode>> node_stack;
+	for (auto ch : key) {
+		if (node == nullptr || node->children_.count(ch)) {
+			node_stack.push(std::make_shared<TrieNode>());
+			node = node_stack.top();
+		}
+		else {
+			node = node->children_.at(ch);
+		}
+	}
+	
+	if (node && node->is_value_node_) {
+		
+	}
 }
 
 auto Trie::Remove(std::string_view key) const -> Trie {
-  throw NotImplementedException("Trie::Remove is not implemented.");
+	throw NotImplementedException("Trie::Remove is not implemented.");
 
-  // You should walk through the trie and remove nodes if necessary. If the node doesn't contain a value any more,
-  // you should convert it to `TrieNode`. If a node doesn't have children any more, you should remove it.
+	// You should walk through the trie and remove nodes if necessary. If the node doesn't contain a value any more,
+	// you should convert it to `TrieNode`. If a node doesn't have children any more, you should remove it.
 }
 
 // Below are explicit instantiation of template functions.
@@ -56,4 +93,4 @@ template auto Trie::Get(std::string_view key) const -> const Integer *;
 template auto Trie::Put(std::string_view key, MoveBlocked value) const -> Trie;
 template auto Trie::Get(std::string_view key) const -> const MoveBlocked *;
 
-}  // namespace bustub
+}	// namespace bustub
