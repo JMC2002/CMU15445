@@ -17,6 +17,7 @@
 #include <mutex>  // NOLINT
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 #include "common/config.h"
 #include "common/macros.h"
@@ -110,7 +111,7 @@ class LRUKReplacer {
    *
    * @brief Record the event that the given frame id is accessed at current timestamp.
    * Create a new entry for access history if frame id has not been seen before.
-   *
+   *  
    * If frame id is invalid (ie. larger than replacer_size_), throw an exception. You can
    * also use BUSTUB_ASSERT to abort the process if frame id is invalid.
    *
@@ -170,7 +171,7 @@ class LRUKReplacer {
  private:
   // TODO(student): implement me! You can replace these member variables as you like.
   // Remove maybe_unused if you start using them.
-  std::unordered_map<frame_id_t, LRUKNode> node_store_;
+  std::unordered_map<frame_id_t, std::shared_ptr<LRUKNode>> node_store_;
   size_t current_timestamp_{0};
   size_t curr_size_{0};
   size_t evict_size_{};
@@ -178,8 +179,8 @@ class LRUKReplacer {
   size_t k_{};
   std::mutex latch_;
   
-  std::list<frame_id_t> lower_k_;       // FIFO
-  std::list<frame_id_t> higher_k_;      // LRU
+  std::list<LRUKNode*> lower_k_;       // FIFO
+  std::set <LRUKNode*> higher_k_;      // LRU
 };
 
 }  // namespace bustub
